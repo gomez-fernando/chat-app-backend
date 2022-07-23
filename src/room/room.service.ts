@@ -121,7 +121,7 @@ export class RoomService {
     }
   }
 
-  async updateSeenMessagesGroup(roomId: string, userId: string){
+  async updateSeenMessagesGroup(roomId: string, userId: string, token: string){
     try {
       const room = await this.Room.findById(roomId);
       room.messages.forEach(message => {

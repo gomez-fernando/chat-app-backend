@@ -44,7 +44,7 @@ export class UserService {
 
     async login(loginData: { email: string; password: string }) {
         const user = await this.User.findOne({
-            email: loginData.email,
+            email: loginData.email
         }).populate('rooms', {
             name: 0,
             users: 0,
@@ -57,7 +57,13 @@ export class UserService {
             !this.bcrypt.compare(loginData.password, user.password)
         )
             throw new UnauthorizedException('Password or email incorrect.');
+
         const token = this.auth.createToken(user.id);
+        user.online = true;
+        await user.save();
+        // const temp = await this.User.findByIdAndUpdate(user._id, newUser)
+        // const updatedUser = this.User.findById(user._id)
+        console.log(user);
         return {
             user,
             token,
@@ -97,18 +103,30 @@ export class UserService {
     }
 
     async update(id: string, token: string, updateUserDto: UpdateUserDto) {
+        // console.log('user in service: ', id, token, updateUserDto);
         try {
             const user = await this.User.findById(id);
+            // console.log('user encontrado in service: ', user);
+
+            // if (user === null)
+            //     throw new NotFoundException('User does not exist.');
+            // const temp = await this.User.findByIdAndUpdate(user._id, {
+            //     ...updateUserDto,
+            //     password: this.bcrypt.encrypt(updateUserDto.password),
+            // });
             if (user === null)
-                throw new NotFoundException('User does not exist.');
-            await this.User.findByIdAndUpdate(user._id, {
-                ...updateUserDto,
-                password: this.bcrypt.encrypt(updateUserDto.password),
-            });
+            throw new NotFoundException('User does not exist.');
+        const temp = await this.User.findByIdAndUpdate(user._id, updateUserDto);
+        // console.log('user actualizado in service: ', temp);
+
             const updatedUser = await this.User.findById(id);
             return updatedUser;
-        } catch (ex) {
-            throw new UnauthorizedException('Petición no autorizada!');
+        } 
+        // catch (ex) {
+        //     throw new UnauthorizedException('Petición no autorizada!');
+        // }
+        catch(err){
+            throw new Error(err);
         }
     }
 
