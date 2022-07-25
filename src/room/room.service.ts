@@ -28,8 +28,6 @@ export class RoomService {
             //     : (createRoomDto.image = createRoomDto.image);
             
 
-            console.log('users received in create service: ', createRoomDto.users);
-
             const user1 = await this.User.findById(createRoomDto.users[0]);
             const user2 = await this.User.findById(createRoomDto.users[1]);
 

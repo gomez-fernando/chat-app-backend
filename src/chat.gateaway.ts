@@ -25,9 +25,7 @@ export class ChatGateaway {
 
     @SubscribeMessage('new-p2p-room')
     async newP2pRoom(@MessageBody() room: CreateRoomDto): Promise<void> {
-        console.log('users received from front: ', room.users);
         const newRoomAndUsers = await   this.roomService.create(room);
-        console.log('newRoomAndUsers: ', newRoomAndUsers);
         this.server.emit('new-p2p-room', newRoomAndUsers);
     }
 
