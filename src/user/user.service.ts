@@ -57,7 +57,10 @@ export class UserService {
             !this.bcrypt.compare(loginData.password, user.password)
         )
             throw new UnauthorizedException('Password or email incorrect.');
+
         const token = this.auth.createToken(user.id);
+        user.online = true;
+        await user.save();
         return {
             user,
             token,
@@ -101,10 +104,8 @@ export class UserService {
             const user = await this.User.findById(id);
             if (user === null)
                 throw new NotFoundException('User does not exist.');
-            await this.User.findByIdAndUpdate(user._id, {
-                ...updateUserDto,
-                password: this.bcrypt.encrypt(updateUserDto.password),
-            });
+            await this.User.findByIdAndUpdate(user._id, updateUserDto);
+
             const updatedUser = await this.User.findById(id);
             return updatedUser;
         } catch (ex) {
@@ -134,7 +135,6 @@ export class UserService {
         if (deletedUser === null) {
             return { message: 'User not found for delete' };
         } else {
-           
             return deletedUser;
         }
     }

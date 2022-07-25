@@ -25,8 +25,8 @@ export class ChatGateaway {
 
     @SubscribeMessage('new-p2p-room')
     async newP2pRoom(@MessageBody() room: CreateRoomDto): Promise<void> {
-        const newRoom = await   this.roomService.create(room);
-        this.server.emit('new-p2p-room', newRoom);
+        const newRoomAndUsers = await   this.roomService.create(room);
+        this.server.emit('new-p2p-room', newRoomAndUsers);
     }
 
     @SubscribeMessage('new-group-room')
@@ -36,9 +36,22 @@ export class ChatGateaway {
 
     }
 
+    @SubscribeMessage('set-online')
+     async setOnline(@MessageBody() user: UpdateUserDto): Promise<void> {
+        this.server.emit('set-online', user);
+    }
+
+    @SubscribeMessage('set-offline')
+    async setOffline(@MessageBody() user: UpdateUserDto): Promise<void> {
+        const updatedUser = await   this.userService.update(user._id, user.token, user);
+
+        this.server.emit('set-offline', updatedUser);
+    }
+
     @SubscribeMessage('update-user')
-    async updateUser(@MessageBody() newUser: UpdateUserDto): Promise<void> {
-        const updatedUser = await   this.userService.update(newUser._id, newUser.token, newUser);
+    async updateUser(@MessageBody() user: UpdateUserDto): Promise<void> {
+        const updatedUser = await   this.userService.update(user._id, user.token, user);
+
         this.server.emit('update-user', updatedUser);
     }
 
@@ -49,8 +62,8 @@ export class ChatGateaway {
     }
 
     @SubscribeMessage('update-seen-messages-group')
-    async updateSeenMessagesGroup(@MessageBody() data: {roomId: string, token: string, userId: string}): Promise<void> {
-        const updatedRoom = await this.roomService.updateSeenMessagesGroup(data.roomId, data.token, data.userId);
+    async updateSeenMessagesGroup(@MessageBody() data: {roomId: string, userId: string, token: string}): Promise<void> {
+        const updatedRoom = await this.roomService.updateSeenMessagesGroup(data.roomId, data.userId, data.token);
         this.server.emit('update-seen-messages', updatedRoom);
     }
 
@@ -62,9 +75,7 @@ export class ChatGateaway {
 
     @SubscribeMessage('delete-account')
     async deleteAccount(@MessageBody() data: {id: string, token: string}): Promise<void> {
-        console.log('id received:', data.id);
         const deletedUser = await this.userService.remove(data.id, data.token);
-        console.log('deleted user in gateaway: ', deletedUser);
         this.server.emit('delete-account', deletedUser);
     }
 
