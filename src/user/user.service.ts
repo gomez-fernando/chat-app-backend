@@ -63,7 +63,7 @@ export class UserService {
         await user.save();
         // const temp = await this.User.findByIdAndUpdate(user._id, newUser)
         // const updatedUser = this.User.findById(user._id)
-        console.log(user);
+        // console.log(user);
         return {
             user,
             token,
